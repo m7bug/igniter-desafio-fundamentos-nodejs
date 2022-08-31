@@ -45,19 +45,65 @@ app.get("/todos", (request, response) => {
 });
 
 app.post("/todos", (request, response) => {
-  // Complete aqui
+  const { user } = request;
+  const { title, deadline } = request.body;
+
+  user.todos.push({
+    id: uuidv4(),
+    title: title,
+    done: false,
+    deadline: new Date(deadline),
+    created_at: new Date(),
+  });
+
+  return response.status(201).json({ todo: user.todos[user.todos.length - 1] });
 });
 
 app.put("/todos/:id", (request, response) => {
-  // Complete aqui
+  const { user } = request;
+  const { id } = request.params;
+  const { title, deadline } = request.body;
+
+  const todo = user.todos.find((todo) => todo.id === id);
+
+  if (!todo) {
+    return response.status(404).json({ message: "Todo not found!" });
+  }
+
+  todo.title = title;
+  todo.deadline = deadline == "" ? todo.deadline : new Date(deadline);
+
+  return response.status(201).send();
 });
 
 app.patch("/todos/:id/done", (request, response) => {
-  // Complete aqui
+  const { user } = request;
+  const { id } = request.params;
+  const { done } = request.body;
+
+  const todo = user.todos.find((todo) => todo.id === id);
+
+  if (!todo) {
+    return response.status(404).json({ message: "Todo not found!" });
+  }
+
+  todo.done = done;
+
+  return response.status(201).send();
 });
 
 app.delete("/todos/:id", (request, response) => {
-  // Complete aqui
+  const { user } = request;
+  const { id } = request.params;
+
+  const todo = user.todos.find((todo) => todo.id === id);
+
+  if (!todo) {
+    return response.status(404).json({ message: "Todo not found!" });
+  }
+
+  user.todos.splice(todo, id);
+  return response.status(200).json(user.todos);
 });
 
 module.exports = app;
